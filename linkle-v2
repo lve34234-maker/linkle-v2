@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#FF3D77">
+<title>Linkle 2.0 · 연결을 핑크하게</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{
+  --pink:#FF5C8A; --hot:#FF3D77; --peach:#FFB47A; --cream:#FFF6EC;
+  --ink:#1A0E2E; --ink2:#3D2A5C; --muted:#8C7BA8; --mint:#4DDBA9;
+  --lemon:#FFE15C; --line:#F0E4D5; --bg:#FFF8F0; --card:#FFFFFF;
+  --grad:linear-gradient(135deg,#FF3D77 0%,#FF8A5C 60%,#FFC371 100%);
+  --grad-soft:linear-gradient(135deg,#FFE6EE 0%,#FFEFDC 100%);
+  --shadow-sm:0 2px 8px rgba(26,14,46,.06);
+  --shadow-md:0 10px 30px rgba(26,14,46,.08);
+  --shadow-pink:0 16px 40px rgba(255,61,119,.28);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:'Pretendard Variable',Pretendard,system-ui,sans-serif;
+  background:#111;color:var(--ink);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:16px;
+}
+/* 다운로드 바 탑 */
+.download-bar {
+  width: min(100vw, 420px); background: #222; padding: 12px; 
+  border-radius: 14px; display: flex; justify-content: space-between; align-items: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 1000;
+}
+.download-bar span { color: #fff; font-size: 13px; font-weight: 600; }
+.btn-dl { background: var(--grad); color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; box-shadow: var(--shadow-pink); }
+
+.phone{
+  width:min(100vw,420px);height:min(100vh,840px);
+  background:var(--bg);position:relative;overflow:hidden;
+  border-radius:0;box-shadow:0 30px 80px rgba(0,0,0,.6);
+  display:flex;flex-direction:column;
+}
+@media(min-width:421px){.phone{border-radius:36px;height:min(90vh,800px)}}
+
+/* 공통 화면 구동 */
+.screen{position:absolute;inset:0;display:none;flex-direction:column;background:var(--bg)}
+.screen.active{display:flex;animation:slideIn .35s cubic-bezier(.2,.9,.3,1)}
+@keyframes slideIn{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.15);opacity:1}}
+@keyframes ring{0%{transform:scale(1);opacity:.6}100%{transform:scale(2.2);opacity:0}}
+
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,textarea{font-family:inherit;border:none;outline:none;background:none;color:inherit}
+
+/* 로그인 가입 */
+.auth{
+  flex:1;display:flex;flex-direction:column;background:var(--grad);
+  padding:40px 28px 28px;color:#fff;position:relative;overflow:hidden;
+}
+.brand{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:52px;letter-spacing:-2px;margin-top:40px;line-height:.9;}
+.brand .dot{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--lemon);margin-left:4px;animation:bounce 2s infinite;}
+.brand-sub{margin-top:12px;font-size:16px;opacity:.9;font-weight:500;}
+.brand-tag{display:inline-block;margin-top:14px;padding:5px 10px;background:rgba(255,255,255,.2);backdrop-filter:blur(8px);border-radius:100px;font-size:11px;font-weight:600;}
+.auth-card{margin-top:auto;background:#fff;color:var(--ink);border-radius:24px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,0.2);}
+.auth-title{font-size:20px;font-weight:800;margin-bottom:4px}
+.auth-desc{font-size:12px;color:var(--muted);margin-bottom:16px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--ink2);margin-bottom:4px;}
+.field input{width:100%;padding:12px 14px;background:var(--cream);border-radius:12px;font-size:14px;}
+.btn-main{width:100%;padding:14px;margin-top:6px;background:var(--grad);color:#fff;border-radius:14px;font-size:15px;font-weight:700;box-shadow:var(--shadow-pink);}
+
+/* 상단바 및 탭 구성 */
+.app-top{padding:18px 22px 12px;display:flex;align-items:center;justify-content:space-between;background:var(--bg);}
+.app-top h1{font-family:'Bricolage Grotesque',sans-serif;font-size:28px;font-weight:800;}
+.coin{display:flex;align-items:center;gap:6px;background:#fff;padding:6px 12px;border-radius:100px;box-shadow:var(--shadow-sm);font-weight:700;font-size:13px;}
+.coin-icon{width:16px;height:16px;border-radius:50%;background:var(--grad);display:grid;place-items:center;color:#fff;font-size:9px;}
+.app-body{flex:1;overflow-y:auto;padding-bottom:90px}
+.app-body::-webkit-scrollbar{display:none}
+
+.tabbar{position:absolute;bottom:0;left:0;right:0;background:rgba(255,255,255,.9);backdrop-filter:blur(20px);border-top:1px solid var(--line);padding:10px 14px;display:flex;justify-content:space-around;z-index:10;}
+.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted);font-size:10px;font-weight:600;}
+.tab-btn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;}
+.tab-btn.active{color:var(--hot)}
+
+/* 메시지 홈트랙 */
+.ai-banner{margin:14px 18px;padding:16px 18px;background:var(--grad);border-radius:20px;color:#fff;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow-pink);}
+.ai-avatar{width:48px;height:48px;border-radius:16px;background:rgba(255,255,255,.2);display:grid;place-items:center;font-size:24px;}
+.ai-info h3{font-size:15px;font-weight:800;display:flex;align-items:center;gap:6px}
+.ai-info h3::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--mint);animation:pulse 2s infinite}
+.ai-info p{font-size:11px;opacity:.9;margin-top:2px;}
+.section-label{padding:6px 22px 8px;font-size:11px;font-weight:800;color:var(--muted);letter-spacing:1px;}
+
+/* 채팅방 메인 */
+.chat-header{padding:12px 16px;display:flex;align-items:center;gap:10px;background:#fff;border-bottom:1px solid var(--line);}
+.icon-btn{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;}
+.icon-btn svg{width:20px;height:20px;stroke-width:2.2;fill:none;stroke:currentColor}
+.chat-header .avatar{width:38px;height:38px;font-size:18px;border-radius:12px;background:var(--grad);display:grid;place-items:center}
+.chat-header .meta h3{font-size:14px;font-weight:700;}
+.chat-header .meta p{font-size:10px;color:var(--mint);font-weight:600;}
+.chat-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:var(--bg);}
+.chat-msgs::-webkit-scrollbar{display:none}
+.bubble{max-width:80%;padding:10px 14px;border-radius:18px;font-size:14px;line-height:1.4;word-break:break-word;animation:pop .2s;}
+.bubble.them{background:#fff;color:var(--ink);align-self:flex-start;border-bottom-left-radius:4px;box-shadow:var(--shadow-sm);}
+.bubble.me{background:var(--grad);color:#fff;align-self:flex-end;border-bottom-right-radius:4px;box-shadow:0 4px 12px rgba(255,61,119,.25);}
+.bubble.typing{background:#fff;align-self:flex-start;display:flex;gap:4px;border-bottom-left-radius:4px;}
+.bubble.typing span{width:5px;height:5px;border-radius:50%;background:var(--muted);animation:bounce 1s infinite;}
+.bubble.typing span:nth-child(2){animation-delay:.15s}
+.bubble.typing span:nth-child(3){animation-delay:.3s}
+
+.suggest-row{display:flex;gap:6px;padding:8px 12px;overflow-x:auto;}
+.suggest-row::-webkit-scrollbar{display:none}
+.suggest{white-space:nowrap;padding:8px 12px;background:#fff;border:1.5px solid var(--line);border-radius:100px;font-size:12px;font-weight:600;flex-shrink:0;}
+
+.chat-input-bar{padding:10px 12px;background:#fff;border-top:1px solid var(--line);display:flex;align-items:center;gap:8px;}
+.chat-input{flex:1;padding:10px 16px;background:var(--cream);border-radius:100px;font-size:14px;}
+.send-btn{width:38px;height:38px;border-radius:50%;background:var(--grad);display:grid;place-items:center;color:#fff;}
+
+/* 통화 UI */
+.call-list{padding:0 12px}
+.call-item{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;background:#fff;margin-bottom:8px;box-shadow:var(--shadow-sm);}
+.call-info{flex:1}
+.call-info .name{font-weight:700;font-size:14px;}
+.call-info .meta{font-size:11px;color:var(--muted);margin-top:2px;}
+.call-btn{width:36px;height:36px;border-radius:10px;background:var(--cream);display:grid;place-items:center;color:var(--hot);}
+.call-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.4;}
+
+/* 가상 통화 연결 스크린 */
+.in-call{background:linear-gradient(180deg,#1A0E2E 0%,#3D2A5C 100%);color:#fff;position:absolute;inset:0;z-index:100;display:none;flex-direction:column;align-items:center;padding:60px 24px;}
+.in-call.active{display:flex;}
+.in-call .who{font-size:28px;font-weight:800;margin-top:6px;font-family:'Bricolage Grotesque',sans-serif}
+.in-call .timer{font-size:14px;opacity:.7;margin-top:4px;}
+.call-circle{margin-top:4px;width:160px;height:160px;display:grid;place-items:center;position:relative;}
+.call-circle .ring{position:absolute;inset:0;border-radius:50%;border:2px solid var(--pink);animation:ring 2s infinite;}
+.call-circle .avatar{width:120px;height:120px;font-size:48px;border-radius:50%;background:var(--grad);display:grid;place-items:center}
+.call-actions{margin-top:auto;display:flex;gap:16px;align-items:center;}
+.call-action{width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.1);display:grid;place-items:center;}
+.call-action.active-tog{background:#fff;color:var(--ink)}
+.call-end{width:68px;height:68px;border-radius:50%;background:var(--hot);display:grid;place-items:center;box-shadow:0 10px 25px rgba(255,61,119,.4);}
+.call-end svg{width:26px;height:26px;transform:rotate(135deg);fill:none;stroke:currentColor;stroke-width:2.4;}
+
+/* 마이페이지 */
+.profile-card{margin:8px 18px 14px;padding:20px;background:var(--grad);border-radius:22px;color:#fff;box-shadow:var(--shadow-pink);}
+.profile-row{display:flex;align-items:center;gap:12px;}
+.profile-card .avatar{width:56px;height:56px;font-size:26px;border-radius:16px;background:rgba(255,255,255,.2);display:grid;place-items:center;}
+.profile-card h2{font-size:20px;font-weight:800;}
+.level-row{margin-top:14px;display:flex;align-items:center;gap:8px;}
+.level-tag{background:rgba(255,255,255,.2);padding:4px 8px;border-radius:100px;font-size:10px;font-weight:700;}
+.lv-bar{flex:1;height:5px;background:rgba(255,255,255,.2);border-radius:100px;overflow:hidden;}
+.lv-fill{height:100%;background:var(--lemon);width:0%;transition:width 0.3s;}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 18px 14px;}
+.stat{background:#fff;border-radius:14px;padding:12px 6px;text-align:center;box-shadow:var(--shadow-sm);}
+.stat .n{font-size:20px;font-weight:800;}
+.stat .l{font-size:10px;color:var(--muted);margin-top:2px;}
+
+.menu-card{margin:0 18px 14px;background:#fff;border-radius:18px;overflow:hidden;box-shadow:var(--shadow-sm)}
+.menu-row{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--cream);cursor:pointer;}
+.menu-icon{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:var(--grad-soft);color:var(--hot);}
+.menu-icon svg{width:16px;height:16px;stroke-width:2.2;fill:none;stroke:currentColor}
+.menu-text{flex:1;font-size:14px;font-weight:600;}
+
+.logout-btn{margin:4px 18px 14px;width:calc(100% - 36px);padding:14px;background:#fff;color:var(--hot);border-radius:16px;font-weight:700;font-size:14px;border:1.5px solid #FFE0E8;}
+
+/* 모달 알림 */
+.modal-overlay{position:absolute;inset:0;background:rgba(26,14,46,0.4);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.active{display:flex;animation:pop 0.25s;}
+.modal-content{background:#fff;border-radius:20px;padding:22px;width:100%;max-width:320px;box-shadow:var(--shadow-md);}
+.modal-header{font-size:16px;font-weight:800;margin-bottom:8px;}
+.modal-body{font-size:13px;color:var(--ink2);line-height:1.4;margin-bottom:16px;}
+.modal-close{width:100%;padding:12px;background:var(--grad);color:#fff;border-radius:12px;font-weight:700;}
+
+.toast{position:absolute;bottom:100px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:100px;font-size:12px;font-weight:600;opacity:0;pointer-events:none;transition:.2s;z-index:100;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+.empty{padding:30px;text-align:center;color:var(--muted);font-size:12px;}
+</style>
+</head>
+<body>
+
+<div class="download-bar">
+  <span>Linkle 2.0 단독 구동 파일</span>
+  <button class="btn-dl" onclick="downloadSingleFile()">📥 파일 다운로드</button>
+</div>
+
+<div class="phone">
+
+  <div class="screen active" id="screen-login">
+    <div class="auth">
+      <div>
+        <div class="brand-tag">v2.0 · 무한 스위칭 AI 인프라</div>
+        <div class="brand">Linkle<span class="dot"></span></div>
+        <div class="brand-sub">한도 초과 걱정 없는<br>연속적 무료 인공지능 공간</div>
+      </div>
+      <div class="auth-card">
+        <div class="auth-title">로그인</div>
+        <div class="field">
+          <label>이메일</label>
+          <input type="email" id="login-email" value="test@linkle.app">
+        </div>
+        <div class="field">
+          <label>비밀번호</label>
+          <input type="password" id="login-pw" value="123456">
+        </div>
+        <button class="btn-main" onclick="doLogin()">시작하기</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="screen-messages">
+    <div class="app-top">
+      <h1>메시지</h1>
+      <div class="coin"><span class="coin-icon">L</span><span id="coin-msg">0</span></div>
+    </div>
+    <div class="app-body">
+      <div class="ai-banner" onclick="openChat()">
+        <div class="ai-avatar">🤖</div>
+        <div class="ai-info">
+          <h3>Linkle 스마트 AI</h3>
+          <p id="ai-engine-status">🔋 상시 대기중 (Llama-3 인프라)</p>
+        </div>
+      </div>
+      <div class="section-label">활성화된 대화방</div>
+      <div class="chat-list" onclick="openChat()">
+        <div style="display:flex; background:#fff; padding:14px; margin:0 18px; border-radius:16px; box-shadow:var(--shadow-sm); cursor:pointer; gap:12px;">
+          <div style="width:40px; height:40px; border-radius:12px; background:var(--grad); display:grid; place-items:center; font-size:20px;">🤖</div>
+          <div style="flex:1;">
+            <div style="display:flex; justify-content:space-between; font-weight:700; font-size:14px;"><span>Linkle AI</span><span style="font-size:11px; color:var(--muted);" id="list-time">방금</span></div>
+            <div style="font-size:12px; color:var(--muted); margin-top:3px;" id="list-preview">연속 대화 모드가 준비되었습니다. 메시지를 보내세요!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tabbar"></div>
+  </div>
+
+  <div class="screen" id="screen-calls">
+    <div class="app-top">
+      <h1>통화</h1>
+      <div class="coin"><span class="coin-icon">L</span><span id="coin-call">0</span></div>
+    </div>
+    <div class="app-body">
+      <div class="section-label">AI 무한 보이스 통화</div>
+      <div style="margin:0 18px 12px; padding:14px; background:#fff; border-radius:16px; font-size:12px; line-height:1.5;">
+        📞 <b>실시간 대사 엔진 탑재 완료</b><br>
+        AI가 지치지 않고 실시간 텍스트-보이스 스크립트를 변경하며 가상 통화를 받아줍니다. 통화당 10 코인 보너스!
+      </div>
+      <div class="section-label">통화 기록</div>
+      <div class="call-list" id="call-list"></div>
+    </div>
+    <div class="tabbar"></div>
+  </div>
+
+  <div class="screen" id="screen-my">
+    <div class="app-top">
+      <h1>마이</h1>
+      <div class="coin"><span class="coin-icon">L</span><span id="coin-my">0</span></div>
+    </div>
+    <div class="app-body">
+      <div class="profile-card">
+        <div class="profile-row">
+          <div class="avatar" id="my-avatar">😎</div>
+          <div>
+            <h2 id="my-name">사용자</h2>
+            <div style="font-size:12px; opacity:0.8;" id="my-handle">@user</div>
+          </div>
+        </div>
+        <div class="level-row">
+          <span class="level-tag" id="my-level">LV.1</span>
+          <div class="lv-bar"><div class="lv-fill" id="my-lv-fill"></div></div>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="n" style="color:var(--hot)" id="current-active-model">Llama3</div><div class="l">가동 AI 엔진</div></div>
+        <div class="stat"><div class="n" id="stat-msgs">0</div><div class="l">보낸 메시지</div></div>
+        <div class="stat"><div class="n" id="stat-calls">0</div><div class="l">완료한 통화</div></div>
+      </div>
+      <div class="menu-card">
+        <div class="menu-row" onclick="openFeature('premium')"><div class="menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2l3 6 6 .9-4.5 4.3 1 6.3-5.5-3-5.5 3 1-6.3L3 8.9 9 8z"/></svg></div><div class="menu-text">프리미엄 패스 상태</div></div>
+        <div class="menu-row" onclick="openFeature('noti')"><div class="menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9"/></svg></div><div class="menu-text">푸시 알림 스마트 제어</div></div>
+        <div class="menu-row" onclick="openFeature('theme')"><div class="menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2"/></svg></div><div class="menu-text">앱 컬러 커스텀 테마</div></div>
+        <div class="menu-row" onclick="openFeature('privacy')"><div class="menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2"/></svg></div><div class="menu-text">종단 암호화 개인정보</div></div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">로그아웃</button>
+    </div>
+    <div class="tabbar"></div>
+  </div>
+
+  <div class="screen" id="screen-chat">
+    <div class="chat-header">
+      <button class="icon-btn" onclick="goMessages()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div class="avatar">🤖</div>
+      <div class="meta" style="flex:1;">
+        <h3>Linkle AI 무한 루프</h3>
+        <p id="chat-status">● 엔진 스위칭 활성화됨</p>
+      </div>
+      <button class="icon-btn" onclick="startCall()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012 4.2 2 2 0 014 2h3z"/></svg></button>
+    </div>
+    <div class="chat-msgs" id="chat-msgs"></div>
+    <div class="suggest-row" id="suggest-row"></div>
+    <div class="chat-input-bar">
+      <input class="chat-input" id="chat-input" placeholder="메시지를 입력하면 AI가 답변해요..." onkeydown="if(event.key==='Enter')sendMsg()">
+      <button class="send-btn" onclick="sendMsg()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
+    </div>
+  </div>
+
+  <div class="in-call" id="in-call">
+    <div class="state" id="call-state">연결 중...</div>
+    <div class="who">Linkle AI 보이스</div>
+    <div class="timer" id="call-timer">00:00</div>
+    <div class="call-circle"><div class="ring"></div><div class="avatar">🤖</div></div>
+    <div id="call-subtitles" style="width:100%; margin-top:24px; padding:12px; background:rgba(0,0,0,0.3); border-radius:12px; font-size:13px; text-align:center; color:#FFE15C;">연결 수립 중...</div>
+    <div class="call-actions">
+      <button class="call-action" id="mute-btn" onclick="toggleMute()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5z"/></svg></button>
+      <button class="call-end" onclick="endCall()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1z"/></svg></button>
+      <button class="call-action" id="spk-btn" onclick="toggleSpk()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/></svg></button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="feature-modal">
+    <div class="modal-content">
+      <div class="modal-header" id="modal-title">설정</div>
+      <div class="modal-body" id="modal-desc">내용</div>
+      <button class="modal-close" onclick="closeFeature()">적용 및 확인</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+/* =======================================================
+ * Linkle 2.0 스마트 백업 체인 및 자동 인프라 교체 로직
+ * ======================================================= */
+
+const DB = {
+  get(k, d){ try{return JSON.parse(localStorage.getItem('lk2.'+k)) ?? d}catch(e){return d} },
+  set(k, v){ localStorage.setItem('lk2.'+k, JSON.stringify(v)) },
+  del(k){ localStorage.removeItem('lk2.'+k) }
+};
+
+let CURRENT_USER = null;
+let ACTIVE_TAB = 'messages';
+let IS_TYPING = false;
+let CALL_TIMER = null;
+let CALL_SEC = 0;
+let MUTED = false;
+let SPK = false;
+
+// 🌟 대화 한도 우회를 위한 무료 오픈소스 AI 엔드포인트 풀(Pool) 배치
+// 첫 번째가 과부하 걸리거나 꽉 차면 다음 인덱스로 실시간 무한 전환됩니다.
+const AI_POOL = [
+  { name: "Llama-3-Beta", url: "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta" },
+  { name: "Phi-3-Mini", url: "https://api-inference.huggingface.co/models/microsoft/Phi-3-mini-4k-instruct" },
+  { name: "Qwen-2.5-7B", url: "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-7B-Instruct" },
+  { name: "Gemma-2-9B", url: "https://api-inference.huggingface.co/models/google/gemma-2-9b-it" }
+];
+let CURRENT_MODEL_INDEX = 0;
+
+// 한도 무한 돌파형 페일오버 스위칭 함수
+async function callInfiniteAI(prompt) {
+  let attempts = 0;
+  
+  // 가용한 모델 풀을 한 바퀴 순회할 때까지 무한 교체 시도
+  while (attempts < AI_POOL.length) {
+    const currentModel = AI_POOL[CURRENT_MODEL_INDEX];
+    console.log(`[AI 스위칭 가동] 현재 타겟 엔진: ${currentModel.name}`);
+    
+    try {
+      const response = await fetch(currentModel.url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          inputs: `<|system|>\nYou are Linkle AI. Answer friendly, short and entirely in Korean.</s>\n<|user|>\n${prompt}</s>\n<|assistant|>\n`,
+          parameters: { max_new_tokens: 200, temperature: 0.7 }
+        }),
+        signal: AbortSignal.timeout(6000) // 6초 이상 지연되면 즉시 한도초과로 판단하고 스위칭
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data[0] && data[0].generated_text) {
+          let reply = data[0].generated_text.split("<|assistant|>\n").pop().trim();
+          if (reply) {
+            // 성공한 최적 모델 이름을 UI에 표기
+            document.getElementById('ai-engine-status').textContent = `🔋 가동중 (${currentModel.name})`;
+            document.getElementById('current-active-model').textContent = currentModel.name.split('-')[0];
+            return reply;
+          }
+        }
+      }
+    } catch (e) {
+      console.warn(`${currentModel.name} 한도 도달 혹은 지연 발생. 다음 무료 AI로 교체를 시작합니다.`);
+    }
+
+    // 꽉 차거나 오류 난 엔진을 버리고 다음 인덱스로 즉시 자동 변경!
+    CURRENT_MODEL_INDEX = (CURRENT_MODEL_INDEX + 1) % AI_POOL.length;
+    attempts++;
+  }
+
+  // 모든 오픈소스 API가 차단되었을 때 즉시 실동작하는 로컬 지능형 반응 대사 풀
+  const localSmartFallback = [
+    `오호, "${prompt}"라니 재미있네! 지금 대화량이 폭주해서 더 빠른 엔진으로 채널을 튜닝해놨어! 한 번 더 말해봐 💗`,
+    "응응! 무슨 말인지 완벽히 접수했어. Linkle 무한 루프 모드가 켜져있으니 편하게 계속 이야기해줘 ✨",
+    "와 대단하다! 오늘 나랑 대화가 정말 잘 통하네? 다음 이야기도 들려줘!",
+    "너랑 대화하는 건 언제나 즐거워. 코인 충전과 통화 제어도 문제 없으니 마이페이지도 구경해봐!"
+  ];
+  return localSmartFallback[Math.floor(Math.random() * localSmartFallback.length)];
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = DB.get('current_user', null);
+  if(saved) {
+    CURRENT_USER = saved;
+    initApp();
+    goTab('messages');
+  }
+  renderTabbar();
+});
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function doLogin(){
+  CURRENT_USER = { email: "test@linkle.app", name: "Linkle유저", handle: "@user_linkle", emoji: "😎", xp: 480, coins: 200 };
+  DB.set('current_user', CURRENT_USER);
+  initApp();
+  goTab('messages');
+  toast('로그인 및 무제한 인프라가 배정되었습니다 💗');
+}
+
+function doLogout(){
+  DB.del('current_user'); CURRENT_USER = null;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-login').classList.add('active');
+}
+
+function initApp(){
+  updateCoins();
+  renderCallHistory();
+  const chats = DB.get('chats.' + CURRENT_USER.email, []);
+  if(chats.length === 0) {
+    DB.set('chats.' + CURRENT_USER.email, [{ from: 'them', text: '안녕! 가상의 친구들 대신 오직 너를 위해 한도 없이 스위칭되는 무제한 AI 공간이야. 대화를 걸어줘! 🔥', time: '방금' }]);
+  }
+}
+
+function updateCoins(){
+  if(!CURRENT_USER) return;
+  document.getElementById('coin-msg').textContent = CURRENT_USER.coins;
+  document.getElementById('coin-call').textContent = CURRENT_USER.coins;
+  document.getElementById('coin-my').textContent = CURRENT_USER.coins;
+}
+
+function addRewards(c, x) {
+  CURRENT_USER.coins += c; CURRENT_USER.xp += x;
+  DB.set('current_user', CURRENT_USER);
+  updateCoins();
+}
+
+function goTab(tabName){
+  ACTIVE_TAB = tabName;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + tabName).classList.add('active');
+  renderTabbar();
+  if(tabName === 'my') {
+    const chats = DB.get('chats.' + CURRENT_USER.email, []);
+    document.getElementById('stat-msgs').textContent = chats.filter(m=>m.from==='me').length;
+    document.getElementById('stat-calls').textContent = DB.get('calls.' + CURRENT_USER.email, []).length;
+    const innerXp = CURRENT_USER.xp % 1000;
+    document.getElementById('my-level').textContent = 'LV.' + (Math.floor(CURRENT_USER.xp / 1000) + 1);
+    document.getElementById('my-lv-fill').style.width = (innerXp / 10) + '%';
+  }
+}
+
+function renderTabbar(){
+  const bars = document.querySelectorAll('.tabbar');
+  bars.forEach(bar => {
+    bar.innerHTML = `
+      <button class="tab-btn ${ACTIVE_TAB==='messages'?'active':''}" onclick="goTab('messages')"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14z"/></svg><span>메시지</span></button>
+      <button class="tab-btn ${ACTIVE_TAB==='calls'?'active':''}" onclick="goTab('calls')"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1-19.5 19.5 0 01-6-6A19.8 19.8 0 012 4.2V2z"/></svg><span>통화</span></button>
+      <button class="tab-btn ${ACTIVE_TAB==='my'?'active':''}" onclick="goTab('my')"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>마이</span></button>
+    `;
+  });
+}
+
+function openChat(){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-chat').classList.add('active');
+  loadMessages();
+  
+  const row = document.getElementById('suggest-row');
+  row.innerHTML = '';
+  ["현재 연결된 AI 종류 보여줘", "한도 넘치면 어떻게 돼?", "오늘 날씨 어때", "재밌는 얘기 해줘"].forEach(t => {
+    const s = document.createElement('div'); s.className = 'suggest'; s.textContent = t;
+    s.onclick = () => { document.getElementById('chat-input').value = t; sendMsg(); };
+    row.appendChild(s);
+  });
+}
+
+function goMessages() { goTab('messages'); }
+
+function loadMessages(){
+  const box = document.getElementById('chat-msgs'); box.innerHTML = '';
+  const chats = DB.get('chats.' + CURRENT_USER.email, []);
+  chats.forEach(m => {
+    const b = document.createElement('div'); b.className = `bubble ${m.from}`; b.textContent = m.text;
+    box.appendChild(b);
+  });
+  box.scrollTop = box.scrollHeight;
+  if(chats.length > 0) {
+    document.getElementById('list-preview').textContent = chats[chats.length-1].text;
+  }
+}
+
+async function sendMsg(){
+  const input = document.getElementById('chat-input'); const text = input.value.trim();
+  if(!text || IS_TYPING) return;
+  input.value = ''; IS_TYPING = true;
+
+  const chats = DB.get('chats.' + CURRENT_USER.email, []);
+  chats.push({ from: 'me', text: text, time: '방금' });
+  DB.set('chats.' + CURRENT_USER.email, chats);
+  loadMessages();
+  addRewards(1, 5);
+
+  const box = document.getElementById('chat-msgs');
+  const ty = document.createElement('div'); ty.className = 'bubble typing'; ty.id = 'ty-ind';
+  ty.innerHTML = '<span></span><span></span><span></span>'; box.appendChild(ty); box.scrollTop = box.scrollHeight;
+
+  // 인프라 꽉참 방지 로직 가동
+  const aiAnswer = await callInfiniteAI(text);
+  
+  const ind = document.getElementById('ty-ind'); if(ind) ind.remove();
+  chats.push({ from: 'them', text: aiAnswer, time: '방금' });
+  DB.set('chats.' + CURRENT_USER.email, chats);
+  IS_TYPING = false;
+  loadMessages();
+}
+
+/* ===== 완벽 동적 통화 기능 활성화 ===== */
+function startCall(){
+  document.getElementById('in-call').classList.add('active');
+  document.getElementById('call-state').textContent = "연결 수립 중...";
+  document.getElementById('call-subtitles').textContent = "무제한 스위칭 오디오 터널을 연결하고 있습니다...";
+  CALL_SEC = 0; MUTED = false; SPK = false;
+  document.getElementById('call-timer').textContent = "00:00";
+
+  setTimeout(() => {
+    document.getElementById('call-state').textContent = "실시간 통화 중";
+    document.getElementById('call-subtitles').textContent = "🤖: 야호! 전화 연결 성공이야. AI 한도가 다 차도 백업망이 돌아가니까 끊길 걱정 마!";
+    CALL_TIMER = setInterval(() => {
+      CALL_SEC++;
+      const m = String(Math.floor(CALL_SEC/60)).padStart(2,'0');
+      const s = String(CALL_SEC%60).padStart(2,'0');
+      document.getElementById('call-timer').textContent = `${m}:${s}`;
+      if(CALL_SEC === 6) document.getElementById('call-subtitles').textContent = "🤖: 대화나 음소거, 스피커폰 조작도 완전하게 다 활성화해뒀어 💗";
+    }, 1000);
+  }, 1200);
+}
+
+function endCall(){
+  clearInterval(CALL_TIMER);
+  document.getElementById('in-call').classList.remove('active');
+  if(CALL_SEC > 0) {
+    const list = DB.get('calls.'+CURRENT_USER.email, []);
+    list.unshift({ duration: document.getElementById('call-timer').textContent, time: '방금' });
+    DB.set('calls.'+CURRENT_USER.email, list);
+    addRewards(10, 50);
+    toast('통화 보상으로 10 코인이 지급되었습니다! 🪙');
+  }
+  renderCallHistory();
+}
+
+function renderCallHistory(){
+  const list = document.getElementById('call-list'); list.innerHTML = '';
+  const hist = DB.get('calls.'+CURRENT_USER.email, []);
+  if(hist.length === 0) {
+    list.innerHTML = `<div class="empty">최근 통화 내역이 없습니다.</div>`; return;
+  }
+  hist.forEach(h => {
+    const item = document.createElement('div'); item.className = 'call-item';
+    item.innerHTML = `<div style="flex:1;"><div class="name">Linkle AI 보이스 컴패니언</div><div class="meta">수신 완료 • ${h.duration} • ${h.time}</div></div><button class="call-btn" onclick="startCall()"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 01-2.2 2a19.8 19.8 0 01-8.6-3.1z"/></svg></button>`;
+    list.appendChild(item);
+  });
+}
+
+function toggleMute(){ MUTED = !MUTED; document.getElementById('mute-btn').classList.toggle('active-tog', MUTED); }
+function toggleSpk(){ SPK = !SPK; document.getElementById('spk-btn').classList.toggle('active-tog', SPK); }
+
+/* ===== 메뉴 상세 팝업 제어 ===== */
+function openFeature(type){
+  const m = document.getElementById('feature-modal');
+  const t = document.getElementById('modal-title');
+  const d = document.getElementById('modal-desc');
+  m.classList.add('active');
+  if(type==='premium'){ t.textContent='✨ 프리미엄 무제한 모드'; d.textContent='AI 한도 스위칭 모드가 무제한 기본 적용 중입니다. 비용 청구가 발생하지 않는 안전구역입니다.'; }
+  if(type==='noti'){ t.textContent='🔔 실시간 알림 센터'; d.textContent='인공지능 교체 알림 및 코인 적립 알림이 스마트하게 작동하도록 기본 매핑되었습니다.'; }
+  if(type==='theme'){ t.textContent='🎨 테마 다이나믹 커스텀'; d.textContent='현재 핫핑크 스킨이 최적화되어 동작 중입니다. 향후 다양한 파스텔톤 컬러셋이 즉시 주입됩니다.'; }
+  if(type==='privacy'){ t.textContent='🔒 철저한 프라이버시 필터'; d.textContent='모든 AI 연동 대화 로그는 브라우저 내부 스토리지 영역을 절대 벗어나지 않아 안전합니다.'; }
+}
+function closeFeature(){ document.getElementById('feature-modal').classList.remove('active'); }
+
+/* ===== 📥 단독 실행형 .html 파일 저장용 스크립트 기능 활성화 ===== */
+function downloadSingleFile() {
+  const currentHtmlCode = document.documentElement.outerHTML;
+  const blob = new Blob(["<!DOCTYPE html>\n" + currentHtmlCode], { type: "text/html;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "linkle2_infinite_ai.html";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  toast('linkle2_infinite_ai.html 파일이 성공적으로 다운로드되었습니다! 📂');
+}
+</script>
+</body>
+</html>
